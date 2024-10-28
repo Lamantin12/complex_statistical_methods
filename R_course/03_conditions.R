@@ -6,7 +6,7 @@ mydata <- read.csv('evals.csv')
 
 # if
 
-a <- 
+a <- -1
 
 if (a > 0){
   print('positive')
@@ -50,7 +50,7 @@ for (i in 1:nrow(mydata)){
 }
 
 
-
+print("")
 # for + if
 for (i in 1:nrow(mydata)){
   if (mydata$gender[i] == 'male'){
@@ -74,7 +74,6 @@ for (i in 1:nrow(mydata)){
 
 
 
-
 mydata$quality2 <- ifelse(mydata$score > 4, 'good', 'bad')
 
 
@@ -93,6 +92,42 @@ while(i < 51){
 }
 
 
+-- EX
+-- 1
 
+library(datasets)
+data(mtcars) 
+
+mtcars$new_var <- ifelse((mtcars$carb >= 4) | (mtcars$cyl > 6), 1, 0)
+mtcars
+
+-- 2
+my_vector <- c(0, 23.34)
+if (mean(my_vector) > 20) {
+  result <- "My mean is great"
+} else {
+  result <- "My mean is not so great"
+} 
+result
+
+-- 3 
+df <- AirPassengers
+good_months<-c()
+for (i in 1:(length(df)-1)) {
+  if (df[i+1]>df[i]) {
+    good_months<-append(good_months, i+1)
+  }
+}
+good_months
+
+AirPassengers[-1][AirPassengers[-144] > AirPassengers[-1]]
+
+-- 4
+moving_avg_window <- 10
+moving_average <- numeric(length(df) - moving_avg_window + 1)
+for (i in 1:(length(df) - moving_avg_window + 1)){
+  moving_average[i] <- mean(df[c(i:(i+moving_avg_window-1))])
+}
+moving_average
 
 

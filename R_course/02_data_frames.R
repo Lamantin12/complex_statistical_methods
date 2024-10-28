@@ -4,7 +4,6 @@
 ?read.table
 ?read.csv
 
-setwd(***)
 
 mydata <- read.csv("data/evals.csv")
 
