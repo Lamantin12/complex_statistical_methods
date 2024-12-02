@@ -1,0 +1,174 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage[fleqn]{amsmath}
+
+%SetFonts
+
+%SetFonts
+
+
+\title{%
+  UK Complex Statistical Methods, WS 2024/25\\\
+  Exercise sheet 2}
+
+\author{Khodosevich Leonid}
+
+
+\begin{document}
+\maketitle
+% ex1 text
+
+\section{Problem 1}
+
+Problem 1
+1. Find an explicit expression for the weight function $W_i(x)$ of a local linear estimator $\hat{f}_n(x)=$ $\sum_{i=1}^n W_i(x) Y_i .(3$ points)
+2. Show that for any linear estimator $\hat{f}_n(x ; h)$ under assumptions of Section 2.4
+$$
+\mathrm{E}\{\operatorname{GCV}(h)\}=\mathrm{E}\left[\frac{1}{n} \sum_{i=1}^n\left\{f\left(x_i\right)-\widehat{f}_n\left(x_i ; h\right)\right\}^2\right]\left\{1+O\left(n^{-1}\right)\right\}+\sigma^2+o\left(n^{-1}\right)
+$$
+as well as
+$$
+\mathrm{E}[\exp \{A I C(h)\}]=\mathrm{E}\left[\frac{1}{n} \sum_{i=1}^n\left\{f\left(x_i\right)-\widehat{f}_n\left(x_i ; h\right)\right\}^2\right]\left\{1+O\left(n^{-1}\right)\right\}+\sigma^2+o\left(n^{-1}\right)
+$$
+
+Hint: use the Taylor expansions $(1-x / n)^{-2}=1+2 x / n+o\left(n^{-1}\right)$ and $\exp (2 x / n)=$ $1+2 x / n+o\left(n^{-1}\right) .(3$ points)
+
+\large{\textbf{Solution}}\\
+I)\\
+definitions reminder\\
+$\begin{aligned} X & =X(x)=\left(\begin{array}{cccc}1 & \left(\frac{X_1-x}{h}\right) & \ldots & \left(\frac{X_1-x}{h}\right)^{\ell} / \ell! \\ \vdots & \vdots & \ldots & \vdots \\ 1 & \left(\frac{X_n-x}{h}\right) & \ldots & \left(\frac{X_n-x}{h}\right)^{\ell} / \ell!\end{array}\right)\\
+Y & = \left(\begin{array}{c}Y_1 \\ \vdots \\ Y_n\end{array}\right) \\ 
+V & =V(x)=\operatorname{diag}\left\{K\left(\frac{X_1-x}{h}\right), \ldots, K\left(\frac{X_n-x}{h}\right)\right\}\end{aligned}$
+\\
+$P(x)=\left(1, x, x^2 / 2!, \ldots, x^{\ell} / \ell!\right)^t$
+\\
+$W_i(x)=\frac{1}{n h} P(0)^t\left(\frac{1}{n h} X^t V X\right)^{-1} P\left(\frac{X_i-x}{h}\right) K\left(\frac{X_i-x}{h}\right)$.
+
+\textbf{In linear case}:
+
+
+$\begin{aligned} X & =X(x)=\left(\begin{array}{cccc}1 & \left(\frac{X_1-x}{h}\right) \\ \vdots & \vdots \\ 1 & \left(\frac{X_n-x}{h}\right) \end{array}\right)\\
+Y & = \left(\begin{array}{c}Y_1 \\ \vdots \\ Y_n\end{array}\right)\\
+V & =V(x)=\operatorname{diag}\left\{K\left(\frac{X_1-x}{h}\right), \ldots, K\left(\frac{X_n-x}{h}\right)\right\}\end{aligned}$
+
+$P(x)=\left(1, x\right)^t$\\
+
+
+Let $ Z_i = \frac{X_i-x}{h}$ \\
+\begin{equation*}
+\begin{split}
+\\
+X^t V X & = \left(\begin{array}{cccc}1 & \left(\frac{X_1-x}{h}\right) \\ \vdots & \vdots \\ 1 & \left(\frac{X_n-x}{h}\right) \end{array}\right)^t  
+\left(\begin{array}{cccc} K\left(\frac{X_1-x}{h}\right) & \ldots & 0 \\ \vdots & \ldots & \vdots \\ 0 & \ldots & K\left(\frac{X_1-x}{h}\right)\end{array}\right) 
+\left(\begin{array}{cccc}1 & \left(\frac{X_1-x}{h}\right) \\ \vdots & \vdots \\ 1 & \left(\frac{X_n-x}{h}\right) \end{array}\right)\\
+& = \left(\begin{array}{cccc}1 & \left(Z_1\right) \\ \vdots & \vdots \\ 1 & \left(Z_n\right) \end{array}\right)^t  
+\left(\begin{array}{cccc} K\left(Z_1\right) & \ldots & 0 \\ \vdots & \ldots & \vdots \\ 0 & \ldots & K\left(Z_n\right)\end{array}\right) 
+\left(\begin{array}{cccc}1 & \left(Z_1\right) \\ \vdots & \vdots \\ 1 & \left(Z_n\right) \end{array}\right)\\
+& = \left(\begin{array}{cccc}1 & \ldots & 1 \\ \left(Z_1\right) & \ldots & \left(Z_n\right) \end{array}\right) 
+\left(\begin{array}{cccc}K\left(Z_1\right) & K\left(Z_1\right)\left(Z_1\right) \\ \vdots & \vdots \\ K\left(Z_n\right) & K\left(Z_n\right)\left(Z_n\right) \end{array}\right)\\
+& = \left(\begin{array}{cccc}\sum_{i=1}^n K\left(Z_i\right) & \sum_{i=1}^n K\left(Z_i\right)\left(Z_i\right) \\  \sum_{i=1}^n K\left(Z_i\right)\left(Z_i\right) & \sum_{i=1}^n K\left(Z_i\right)\left(Z_i^2\right) \end{array}\right)\\
+& = \left(\begin{array}{cccc} V_1 & V_2 \\  V_2 & V_3 \end{array}\right),
+\text{where} \,V_1 = \sum_{i=1}^n K\left(Z_i\right), V_2 = \sum_{i=1}^n K\left(Z_i\right)\left(Z_i\right), V_3 = \sum_{i=1}^n K\left(Z_i\right)\left(Z_i^2\right)
+\\
+\end{split}
+\end{equation*} 
+
+Then 
+
+\begin{equation*}
+\begin{split}
+\\
+(\frac{1}{nh}X^t V X)^{-1} & = nh \left(\begin{array}{cccc} V_1 & V_2 \\  V_2 & V_3 \end{array}\right)^{-1} 
+& = \frac{nh}{V_1V_3 - V_2^2} \left(\begin{array}{cccc} V_3 & -V_2 \\  -V_2 & V_1 \end{array}\right) 
+\\
+\end{split}
+\end{equation*} 
+
+Then 
+
+\begin{equation*}
+\begin{split}
+\\
+W_i(x) &= \frac{1}{n h} \left(\begin{array}{cccc} 1 &  0 \end{array}\right) \frac{nh}{V_1V_3 - V_2^2} \left(\begin{array}{cccc} V_3 & -V_2 \\  -V_2 & V_1 \end{array}\right)  \left(\begin{array}{cccc} 1 &  Z_i \end{array}\right) K\left(Z_i\right)\\
+&= \frac{1}{V_1V_3 - V_2^2} \left(\begin{array}{cccc} V_3 &  -V_2 \end{array}\right) \left(\begin{array}{cccc} 1 \\  Z_i \end{array}\right) K\left(Z_i\right)\\
+&= \frac{1}{V_1V_3 - V_2^2} \left(V_3 - V_2 Z_i\right) K\left(Z_i\right)\\
+\text{where} \,V_1 = \sum_{i=1}^n K\left(Z_i\right), \\ V_2 = \sum_{i=1}^n K\left(Z_i\right)\left(Z_i\right), \\ V_3 = \sum_{i=1}^n K\left(Z_i\right)\left(Z_i^2\right), \\
+Z_i = \frac{X_i-x}{h}
+\\
+\end{split}
+\end{equation*} 
+
+II) Proof\\
+1) 
+\begin{equation*}
+\begin{split}
+\\
+G C V(h) & = \frac{n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2}{\left\{1-n^{-1} \sum_{i=1}^n W_i\left(X_i ; h\right)\right\}^2}]\\
+& = n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2 \left( 1 + \frac{2}{n} \sum_{i=1}^n W_i + o(n^{-1}) \right)\\
+& = n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2 \left( 1 + \frac{2}{n} \sum_{i=1}^n W_i + o(n^{-1}) \right)\\
+\\
+\end{split}
+\end{equation*} 
+
+\begin{equation*}
+\begin{split}
+\\
+\mathrm{E}\left[G C V(h) \right] & = \mathrm{E}\left[n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2\right]\left( 1 + \frac{2}{n} \sum_{i=1}^n W_i + o(n^{-1}) \right)\\
+& = \left(\mathrm{E}\left[n^{-1} \sum_{i=1}^n\left\{f\left(X_i\right)-\widehat{f_n}\left(X_i ; h\right)\right\}^2\right)+\sigma^2-\mathrm{E}\left\{\frac{2 \sigma^2}{n} \sum_{i=1}^n W_i\left(X_i ; h\right)\right\}\right) \\ 
+\left( 1 + \frac{2}{n} \sum_{i=1}^n W_i + o(n^{-1}) \right)\\
+& = (\mathrm{E}\left[n^{-1} \sum_{i=1}^n\left\{f\left(X_i\right)-\widehat{f_n}\left(X_i ; h\right)\right\}^2\right]\left( 1 + O(n^{-1}) \right) + C\\
+\end{split}
+\end{equation*} 
+
+\begin{equation*}
+\begin{split}
+\\
+C &= \left( \sigma^2 + \sigma^2 \mathrm{E}\left[ \frac{2 \sigma^2}{n} \sum_{i=1}^n W_i \right]  + \sigma^2o(n^{-1}) -\sigma^2    \mathrm{E}\left[ \frac{2 \sigma^2}{n} \sum_{i=1}^n W_i \right] - \mathrm{E}\left[n^{-1} \sum_{i=1}^n\left\{f\left(X_i\right)  \right\} \right] \right)\\
+& = \left( \sigma^2 + 0 + o(n^{-1}) - 0 - o(n^{-1}) \right)\\
+& = \left( \sigma^2 + o(n^{-1}) \right)\\
+\end{split}
+\end{equation*} 
+
+Finally:
+
+$$
+\mathrm{E}\{\operatorname{GCV}(h)\}=\mathrm{E}\left[\frac{1}{n} \sum_{i=1}^n\left\{f\left(x_i\right)-\widehat{f}_n\left(x_i ; h\right)\right\}^2\right]\left\{1+O\left(n^{-1}\right)\right\}+\sigma^2+o\left(n^{-1}\right)
+$$
+
+2)
+\begin{equation*}
+\begin{split}
+\\
+\mathrm{E}[\exp \{A I C(h)\}] &= \mathrm{E} \exp \left(  \ln \left[n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2  * \exp \left\{ \frac{2}{n} \sum_{i=1}^n W_i\left(X_i ; h\right) \right\} \right]  \right)\\
+& = \mathrm{E} \left(  n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2 * \exp \left\{ \frac{2}{n} \sum_{i=1}^n W_i\left(X_i ; h\right) \right\}  \right)\\
+& = \mathrm{E} \left( n^{-1} \sum_{i=1}^n\left\{Y_i-\widehat{f}_n\left(X_i ; h\right)\right\}^2 * \left( 1 + \frac{2}{n} \sum_{i=1}^n W_i + o(n^{-1}) \right)  \right)
+\end{split}
+\end{equation*} 
+
+Next derivations are exactly like with GCV.
+\hfill\ensuremath{\blacksquare}
+
+\end{document}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

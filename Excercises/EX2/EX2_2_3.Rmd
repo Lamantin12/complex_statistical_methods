@@ -1,0 +1,282 @@
+---
+title: "Excercise sheet 2 (problems 2, 3)"
+author: "Khodosevich Leonid"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+set.seed(2425)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library('ubiquity')
+library(svMisc)
+```
+
+# Problem 2
+
+## Subtask 1.
+
+1.  Let $X_1, \ldots, X_{300}$ be equispaced points on $[0,1]$. Set seed to 2425 and simulate $Y_i$ according to the model $$
+    \begin{aligned}
+    & \quad Y_i=f\left(X_i\right)+0.3 \epsilon_i, \quad f\left(X_i\right)=3 X_i^3 \sin \left(4 \pi X_i\right) \tan \left(\pi X_i / 4\right), \quad i=1, \ldots, 300, \\
+    & \text { where } \epsilon_1, \ldots, \epsilon_{300} \stackrel{i . i . d .}{\sim} \mathcal{N}(0,1) .
+    \end{aligned}
+    $$
+
+<!-- -->
+
+(a) Estimate regression function f by local polynomials of degree 1, 2 and 3, choosing every time the bandwidth by Akaike Information Criterion (AIC). Plot the true function f (without the data points), as well as all three estimators, putting a legend. Comment on the results. Compare also the bandwidths you obtained for all three estimators, giving theoretical justification. (3 points)
+(b) Estimate the first derivative of f again using local polynomials of degree 1, 2 and 3, taking corresponding bandwidths from (a). Plot the true derivative f' and all three estimators, putting a legend. Comment on the results, giving theoretical justification. (3 points)
+
+```{r, echo=FALSE}
+# kernel
+k=function(x) (3*(1-x^2)/4)*(x<=1&x>=-1)
+
+# local polynomial fit func
+locpoly=function(x,y,h,l,ker,der=0){
+  n = length(x)
+  f=matrix(NA,n,der+1)
+  W=rep(0,n)
+  for (i in 1:length(x)){
+    X=rep(1,n)
+    XX=as.vector(outer(x,x[i],"-"))/h
+    for (j in 1:l) X=cbind(X,XX^j/factorial(j))
+    fit.lm=lm(y~X-1,weights=ker(XX))
+    
+    f[i,]=(fit.lm$coef)[1:(der+1)]
+    H=influence(fit.lm, do.coef=FALSE)$hat
+    index=which(labels(H)==i)
+    W[i]=H[index]
+  }
+  return(list(f=f,W=W))
+}
+
+# GCV func
+GCV=function(x,y,l,ker){
+  gcv=function(x,y,h,l,ker){
+    fit.lp=locpoly(x,y,h,l,ker)
+    return(sum((y-fit.lp$f[,1])^2)/(1-mean(fit.lp$W))^2)
+  }
+  return(optimize(gcv,interval=c(0.001,1),x=x,y=y,l=l,ker=ker)$minimum)
+}
+
+AIC=function(x,y,l,ker){
+  gcv=function(x,y,h,l,ker){
+    fit.lp=locpoly(x,y,h,l,ker)
+    return(log(sum((y-fit.lp$f[,1])^2)) + (2*mean(fit.lp$W)))
+  }
+  return(optimize(gcv,interval=c(0.001,1),x=x,y=y,l=l,ker=ker)$minimum)
+}
+
+```
+
+Data:
+
+```{r, echo=FALSE}
+n = 300
+x = linspace(0, 1, 300)
+f = function(x){3*x^3 * sin(4*pi*x) * tan(x*pi/4)}
+y = f(x) + 0.3*rnorm(n)
+plot(x,y,pch=18,cex=0.8)
+```
+
+Estimation of local polynomial of degree 1
+
+```{r, echo=FALSE}
+n = 300
+x = linspace(0, 1, 300)
+f = function(x){3*x^3 * sin(4*pi*x) * tan(x*pi/4)}
+y = f(x) + 0.3*rnorm(n)
+plot(x,y,pch=18,cex=0.8)
+h.gcv = AIC(x,y,l=1,ker=k) 
+fit.lp = locpoly(x, y, h=h.gcv, l = 1, ker=k)
+lines(x,fit.lp$f[,1],col=3,lwd=3)
+h.gcv
+```
+
+a)  Estimating regression function f by local polynomials of degree 1, 2 and 3, choosing every time the bandwidth by Akaike Information Criterion (AIC), as well as all three estimators, putting a legend. Comment on the results. Compare also the bandwidths you obtained for all three estimators, giving theoretical justification. (3 points):
+
+```{r, echo=FALSE}
+n = 300
+x = linspace(0, 1, n)
+f = function(x){3*x^3 * sin(4*pi*x) * tan(x*pi/4)}
+y = f(x) + 0.3*rnorm(n)
+clrs = c("black","red", "green", "yellow")
+plot(x, f(x), type='n', ann=F)
+lines(linspace(0, 1, 1000), f(linspace(0, 1, 1000)))
+h_list = c()
+for (ll in 1:3) {
+  h.aic = AIC(x,y,l=ll,ker=k) 
+  fit.lp = locpoly(x, y, h=h.aic, l=ll, ker=k)
+  lines(x,fit.lp$f[,1],lwd=1, col=clrs[ll+1])
+  print(c(ll, h.aic))
+  h_list = c(h_list, h.aic)
+}
+legend(0, -0.5, legend=c("function", "l=1", "l=2", "l=3"),  
+       fill = clrs)
+```
+
+As discussed in lecture, the bigger the grade of local polynomial, the more information it needs to fit properly. Thats why bandwidth of higher grades is bigger.
+
+b)  Estimate the first derivative of f again using local polynomials of degree 1, 2 and 3, taking corresponding bandwidths from (a). Plot the true derivative f' and all three estimators, putting a legend. Comment on the results, giving theoretical justification. (3 points)
+
+```{r, echo=FALSE}
+n = 300
+x = linspace(0, 1, n)
+df = function(x){3/4 * x^2 * (pi*x*1/cos((pi*x)/4)^2*sin(4*pi*x) + 4*(4*pi*x*cos(4*pi*x) + 3*sin(4*pi*x))*tan((pi*x)/4))}
+y = f(x) + 0.3*rnorm(n)
+clrs = c("black","red", "green", "yellow")
+plot(x, df(x), type='n', ann=F)
+lines(linspace(0, 1, 1000),df(linspace(0, 1, 1000)))
+for (ll in 1:3) {
+  h.aic = h_list[ll]#AIC(x,y,l=ll,ker=k)
+  fit.lp = locpoly(x, y, h=h.aic, l=ll, ker=k, der=1) 
+  lines(x,fit.lp$f[,2] / h^(ll - 1),lwd=1, col=clrs[ll+1])
+  print(c(ll, h.aic))
+}
+legend(0, 30, legend=c("function", "l=1", "l=2", "l=3"),  
+       fill = clrs)
+```
+
+As discussed on lecture, deriatives are being estimated poorly, because derivatives have lower l-constant of Hoelder class.
+
+## Subtask 2.
+Simulate 200 samples as in 1, setting seed again to 2425. Obtain three estimators for each sample as in 1(a). With this, get Monte Carlo estimators of the mean squared errors at each point x of all three estimators (takes about 20 minutes) and plot these on one plot as a function of x, putting a legend. Comment on the results, giving theoretical justification. (3 points)
+
+```{r, echo=FALSE}
+n = 300
+n_samples = 200
+x = linspace(0, 1, n)
+f = function(x){3*x^3 * sin(4*pi*x) * tan(x*pi/4)}
+y = f(x) + 0.3*rnorm(n)
+clrs = c("red", "green", "yellow")
+
+mse_1 = replicate(n, 0)
+mse_2 = replicate(n, 0)
+mse_3 = replicate(n, 0)
+for (i in 1:n_samples) {
+  break # remove to compute
+  y = f(x) + 0.3*rnorm(n)
+  
+  ll = 1
+  h.aic = AIC(x,y,l=ll,ker=k)
+  fit.lp = locpoly(x, y, h=h.aic, l=ll, ker=k)
+  mse_1 = mse_1 + (fit.lp$f[,1] - f(x))**2
+  
+  ll = 2
+  h.aic = AIC(x,y,l=ll,ker=k)
+  fit.lp = locpoly(x, y, h=h.aic, l=ll, ker=k)
+  mse_2 = mse_2 + (fit.lp$f[,1] - f(x))**2
+  
+  ll = 3
+  h.aic = AIC(x,y,l=ll,ker=k)
+  fit.lp = locpoly(x, y, h=h.aic, l=ll, ker=k)
+  mse_3 = mse_3 + (fit.lp$f[,1] - f(x))**2
+  
+  progress(i, n_samples)
+}
+mse_1 = mse_1 / n_samples
+mse_2 = mse_2 / n_samples
+mse_3 = mse_3 / n_samples
+
+```
+```{r, echo=FALSE}
+# did that so computation is reduced
+load("mse_1.RData")
+load("mse_2.RData")
+load("mse_3.RData")
+```
+
+```{r, echo=FALSE}
+n = 300
+n_samples = 200
+x = linspace(0, 1, n)
+f = function(x){3*x^3 * sin(4*pi*x) * tan(x*pi/4)}
+y = f(x) + 0.3*rnorm(n)
+clrs = c("red", "green", "yellow")
+plot(x, df(x), type='n', ann=F, xlim=c(0, 1), ylim=c(-.0, 0.05))
+lines(x, mse_1, col=clrs[1])
+lines(x, mse_2, col=clrs[2])
+lines(x, mse_3, col=clrs[3])
+legend(0, 0.045, legend=c("mse, l=1", "mse, l=2", "mse, l=3"),  
+       fill = clrs)
+```
+
+1) LPE with higher grade with proper choice of h approximate function better
+2) There is major boundary problem for all of 3 estimators.
+
+# Problem 3
+Read the dataset “Kenya DHS” into R and consider variables zwast as a response and hypage as a covariate. Variable zwast is the weight-for-height Z-score. Scale the covariate into [0, 1] interval. Estimate f and its first derivative in the model zwasti =f(hypagei)+ eps_i, i=1,...,4686, with local polynomial estimator of degree 1, choosing the bandwidth with AIC. Plot the resulting estimator without the data. Is the chosen bandwidth plausible? Now, set the bandwidth to h = 0.2. Add this estimator to the previous plot and comment on the differences. Finally, plot both estimators (with two different bandwidths) of the first derivative of f on one plot. Comment on the results. How can you interpret both f and its first derivative for these data? (5 points)
+
+```{r, echo=FALSE}
+data=read.table("KenyaDHS.txt",header=TRUE)
+attach(data)
+
+clrs = c("red", "green", "yellow")
+
+y <- data[order(data$hypage),]$zwast
+x <- data[order(data$hypage),]$hypage
+x <- ((x- min(x)) /(max(x)-min(x))) # normalizing
+
+
+plot(x, y, main="data dependancy", xlab = "hypage", ylab="zwast")
+
+```
+
+```{r, echo=FALSE}
+# Estimate f and its first derivative in the model zwasti =f(hypagei)+ eps_i, i=1,...,4686, with local polynomial estimator of degree 1, choosing the bandwidth with AIC.
+plot(x, y, type='n', ann=F, xlim=c(0, 1), ylim=c(-2, 2))
+h.aic = AIC(x,y,l=1,ker=k)
+fit.lp = locpoly(x, y, h=h.aic, l=1, ker=k)
+lines(x,fit.lp$f[,1],lwd=5, col="red")
+#points(x,y,lwd=1, col="black", alpha=0.5)
+print(h.aic)
+title(main="estimated f(x), h=min(AIC)")
+```
+
+```{r, echo=FALSE}
+# Estimate f and its first derivative in the model zwasti =f(hypagei)+ eps_i, i=1,...,4686, with local polynomial estimator of degree 1, choosing the bandwidth with AIC.
+plot(x, y, type='n', ann=F, xlim=c(0, 1), ylim=c(-1, 1.5))
+h.aic = AIC(x,y,l=1,ker=k)
+fit.lp = locpoly(x, y, h=h.aic, l=1, ker=k)
+lines(x,fit.lp$f[,1],lwd=5, col="red")
+#points(x,y,lwd=1, col="black", alpha=0.5)
+print(h.aic)
+
+# Is the chosen bandwidth plausible? Now, set the bandwidth to h = 0.2. Add this estimator to the previous plot and comment on the differences.
+h.fixed = 0.2
+fit.lp = locpoly(x, y, h=h.fixed, l=1, ker=k)
+lines(x,fit.lp$f[,1],lwd=5, col="green")
+#points(x,y,lwd=1, col="black", alpha=0.5)
+print(h.fixed)
+title(main="estimated f(x)")
+legend(0.6, 1.5, legend=c("h=min(AIC)", "h=0.2"),  
+       fill = c("red", "green"))
+```
+
+Finally, plot both estimators (with two different bandwidths) of the first derivative of f on one plot. Comment on the results. How can you interpret both f and its first derivative for these data? (5 points)
+
+```{r, echo=FALSE}
+
+plot(x, y, type='n', ann=F, xlim=c(0, 1), ylim=c(-8, 4))
+fit.lp = locpoly(x, y, h=h.aic, l=1, ker=k, der=1)
+lines(x,fit.lp$f[,2]/h.aic,lwd=5, col="red")
+#points(x,y,lwd=1, col="black", alpha=0.5)
+print(h.aic)
+
+h.fixed = 0.2
+fit.lp = locpoly(x, y, h=h.fixed, l=1, ker=k, der=1)
+lines(x,fit.lp$f[,2]/h.fixed,lwd=5, col="green")
+#points(x,y,lwd=1, col="black", alpha=0.5)
+print(h.fixed)
+title(main="estimated df(x)")
+legend(0.6, 1.5, legend=c("h=min(AIC)", "h=0.2"),  
+       fill = c("red", "green"))
+```
+
+From both plots we can see, that h chosen from AIC minimization is overfitting to data, causing much higher varience and lower bias. While h=0.2 yields smooth approximation for both f(x) and df(x). 
+I dont really know meaning for hypage variable, so cannot really interpret correctly. But from what I see, the groth of BMI(zwast variable) is highly dependent on hypage if hypage is low, is it growth, BMI start to change slowly (got that from df graph)
+
+
+
+
+
